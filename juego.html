@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Probabilidad: Gamificación Creativa</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background: #5685fb;
+      min-height: 100vh;
+      min-width: 100vw;
+      overflow-x: hidden;
+    }
+    .logo-reloj {
+      position: fixed;
+      top: 20px;
+      right: 40px;
+      text-align: right;
+      z-index: 10;
+      user-select: none;
+    }
+    .logo-reloj .logo {
+      color: #3c3c3c;
+      font-size: 1.1em;
+      letter-spacing: 1px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .logo-reloj .clock {
+      color: #111;
+      font-size: 1.25em;
+      background: rgba(255,255,255,0.8);
+      padding: 3px 12px;
+      border-radius: 11px;
+      font-weight: bold;
+      display: inline-block;
+      margin-top: 3px;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    /* Centrado total */
+    .center-wrap {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .start-box, .quiz-box, .result-box {
+      background: rgba(255,255,255,0.04);
+      padding: 32px 32px 38px 32px;
+      border-radius: 18px;
+      box-shadow: 0 4px 28px #4442;
+      min-width: 340px;
+      max-width: 700px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .start-title {
+      font-size: 2.7em;
+      color: #fff;
+      text-align: center;
+      font-weight: 400;
+      margin-bottom: 32px;
+      line-height: 1.15;
+    }
+
+    .input-name {
+      font-size: 1.5em;
+      padding: 8px 19px;
+      border: 2px solid #fff;
+      border-radius: 8px;
+      outline: none;
+      margin-bottom: 8px;
+      background: #e6eeff;
+      color: #222;
+      width: 330px;
+      max-width: 95vw;
+      box-sizing: border-box;
+      text-align: center;
+      transition: border .22s;
+    }
+    .input-name:focus {
+      border: 2px solid #5685fb;
+    }
+    .start-btn {
+      margin-top: 22px;
+      background: #5685fb;
+      color: #fff;
+      border: none;
+      padding: 11px 48px;
+      font-size: 1.2em;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background .18s;
+    }
+    .start-btn:hover {
+      background: #2c53c9;
+    }
+
+    /* Pregunta y respuestas */
+    .quiz-question {
+      font-size: 1.35em;
+      color: #222;
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 500;
+      margin-top: 6px;
+      line-height: 1.28;
+      word-break: break-word;
+    }
+    .quiz-options {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .quiz-option {
+      width: 440px;
+      max-width: 94vw;
+      padding: 15px 18px;
+      font-size: 1.18em;
+      background: #5685fb;
+      color: #fff;
+      border: none;
+      border-radius: 13px;
+      cursor: pointer;
+      font-weight: 500;
+      box-shadow: 0 2px 6px #0001;
+      transition: background .15s, transform .12s;
+    }
+    .quiz-option:hover {
+      background: #2c53c9;
+      transform: scale(1.03);
+    }
+
+    .progress-bar {
+      width: 100%;
+      background: #e6eeff;
+      border-radius: 7px;
+      height: 9px;
+      margin: 13px 0 15px 0;
+      overflow: hidden;
+      box-shadow: 0 1px 2px #3332 inset;
+    }
+    .progress {
+      height: 100%;
+      background: #5685fb;
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    /* Resultados */
+    .result-title {
+      font-size: 2.2em;
+      color: #222;
+      margin-bottom: 22px;
+      text-align: center;
+    }
+    .result-score {
+      font-size: 4em;
+      font-weight: bold;
+      margin-bottom: 14px;
+    }
+    .result-message {
+      font-size: 1.5em;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+    .result-user {
+      font-size: 1.3em;
+      color: #444;
+      margin-bottom: 28px;
+      text-align: center;
+    }
+    .exit-btn {
+      background: #e44;
+      color: #fff;
+      padding: 14px 55px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.3em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background .16s;
+      margin-top: 20px;
+    }
+    .exit-btn:hover {
+      background: #a22;
+    }
+
+    @media (max-width: 530px) {
+      .quiz-option, .input-name {
+        width: 97vw;
+        font-size: 1.05em;
+      }
+      .start-box, .quiz-box, .result-box {
+        padding: 10vw 2vw;
+        min-width: unset;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-reloj">
+    <span class="logo">reyes creator</span>
+    <span class="clock" id="clock">10:00</span>
+  </div>
+  <div class="center-wrap">
+    <!-- Start -->
+    <div class="start-box" id="startBox">
+      <div class="start-title">Ingrese su nombre y presione Enter:</div>
+      <input type="text" class="input-name" id="inputName" maxlength="30" autocomplete="off" placeholder="Nombre completo...">
+      <button class="start-btn" id="startBtn">Comenzar</button>
+    </div>
+    <!-- Quiz -->
+    <div class="quiz-box" id="quizBox" style="display:none;">
+      <div class="progress-bar"><div class="progress" id="progress"></div></div>
+      <div class="quiz-question" id="quizQuestion"></div>
+      <div class="quiz-options" id="quizOptions"></div>
+    </div>
+    <!-- Result -->
+    <div class="result-box" id="resultBox" style="display:none;">
+      <div class="result-title">Su nota es</div>
+      <div class="result-score" id="resultScore"></div>
+      <div class="result-message" id="resultMessage"></div>
+      <div class="result-user" id="resultUser"></div>
+      <button class="exit-btn" onclick="window.close();location.href='about:blank';">Salir</button>
+    </div>
+  </div>
+  <script>
+    // --- Datos del examen ---
+    const preguntasOriginales = [
+      {
+        texto: "En una bolsa hay 4 caramelos de limón, 3 de fresa y 2 de menta. ¿Cuál es el espacio muestral al sacar uno?",
+        opciones: ["{limón, fresa, menta}", "{1,2,3,4,5,6,7,8,9}", "{rojo, verde, azul}"],
+        correcta: 0
+      },
+      {
+        texto: "Una caja tiene 5 pelotas: 2 verdes, 2 amarillas y 1 azul. ¿Cuál es un evento posible al sacar una pelota?",
+        opciones: ["Sacar una pelota amarilla", "Sacar una pelota roja", "Sacar una moneda"],
+        correcta: 0
+      },
+      {
+        texto: "En una bolsa hay 3 botones blancos y 2 negros. ¿Los eventos 'sacar un botón blanco' y 'sacar un botón negro' son...",
+        opciones: ["Mutuamente excluyentes", "Compatibles", "Independientes"],
+        correcta: 0
+      },
+      {
+        texto: "Hay 4 sobres (A, B, C y D) y eliges uno al azar. ¿Cuál es el espacio muestral?",
+        opciones: ["{A, B, C, D}", "{1,2,3,4}", "{rojo, azul, verde, amarillo}"],
+        correcta: 0
+      },
+      {
+        texto: "En una caja hay 6 fichas: 4 rojas y 2 verdes. ¿Probabilidad clásica de sacar una verde?",
+        opciones: ["2/6", "4/6", "1/2"],
+        correcta: 0
+      },
+      {
+        texto: "En un sorteo hay 8 camisetas (3 rojas, 5 azules). ¿Cuál es el valor mínimo posible de la probabilidad de sacar una camiseta azul?",
+        opciones: ["0", "1", "0.5"],
+        correcta: 0
+      },
+      {
+        texto: "Hay 7 globos: 3 verdes, 4 rojos. ¿Probabilidad de sacar verde o rojo?",
+        opciones: ["1", "3/7", "4/7"],
+        correcta: 0
+      },
+      {
+        texto: "Una baraja tiene cartas amarillas y azules. ¿Los eventos 'sacar una amarilla' y 'sacar una azul' son...",
+        opciones: ["Mutuamente excluyentes", "Compatibles", "Imposibles"],
+        correcta: 0
+      },
+      {
+        texto: "En una bolsa hay 10 canicas. ¿Cuál es la probabilidad de sacar una canica que no está en la bolsa?",
+        opciones: ["0", "1", "Depende"],
+        correcta: 0
+      },
+      {
+        texto: "Hay 12 dulces: 7 de chocolate y 5 de fruta. ¿Probabilidad de NO sacar uno de fruta?",
+        opciones: ["7/12", "5/12", "12/12"],
+        correcta: 0
+      }
+    ];
+
+    // --- Variables globales ---
+    let preguntas = [];
+    let preguntaIdx = 0;
+    let puntaje = 0;
+    let nombreUsuario = "";
+    let tiempoRestante = 10 * 60; // 10 minutos en segundos
+    let timerInterval = null;
+    let terminado = false;
+
+    // --- Elementos DOM ---
+    const startBox = document.getElementById("startBox");
+    const quizBox = document.getElementById("quizBox");
+    const resultBox = document.getElementById("resultBox");
+    const inputName = document.getElementById("inputName");
+    const startBtn = document.getElementById("startBtn");
+    const quizQuestion = document.getElementById("quizQuestion");
+    const quizOptions = document.getElementById("quizOptions");
+    const progress = document.getElementById("progress");
+    const clock = document.getElementById("clock");
+    const resultScore = document.getElementById("resultScore");
+    const resultMessage = document.getElementById("resultMessage");
+    const resultUser = document.getElementById("resultUser");
+
+    // --- Funciones de utilidad ---
+    function mezclarPreguntas(preguntas) {
+      // Mezcla preguntas y mezcla opciones de cada pregunta
+      return preguntas.map(p => {
+        const opciones = [...p.opciones];
+        const correctaTexto = opciones[p.correcta];
+        for (let i = opciones.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [opciones[i], opciones[j]] = [opciones[j], opciones[i]];
+        }
+        return {
+          texto: p.texto,
+          opciones: opciones,
+          correcta: opciones.indexOf(correctaTexto)
+        };
+      });
+    }
+
+    function mensajeNota(nota) {
+      if (nota <= 10) return "Bajo";
+      if (nota <= 14) return "Excelente";
+      return "Felicitaciones";
+    }
+
+    function colorNota(nota) {
+      if (nota <= 10) return "#e44";
+      if (nota <= 14) return "#3ac95e";
+      return "#5685fb";
+    }
+
+    function formatTime(segundos) {
+      const min = Math.floor(segundos / 60);
+      const seg = segundos % 60;
+      return (min < 10 ? "0" : "") + min + ":" + (seg < 10 ? "0" : "") + seg;
+    }
+
+    // --- Pantalla inicio ---
+    inputName.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") startBtn.click();
+    });
+    startBtn.addEventListener("click", function() {
+      const nombre = inputName.value.trim();
+      if (nombre.length === 0) {
+        inputName.focus();
+        inputName.style.borderColor = "#e44";
+        return;
+      }
+      nombreUsuario = nombre;
+      empezarExamen();
+    });
+
+    // --- Empieza examen ---
+    function empezarExamen() {
+      preguntas = mezclarPreguntas(preguntasOriginales);
+      preguntaIdx = 0;
+      puntaje = 0;
+      terminado = false;
+      tiempoRestante = 10 * 60;
+      startBox.style.display = "none";
+      resultBox.style.display = "none";
+      quizBox.style.display = "flex";
+      mostrarPregunta();
+      actualizarReloj();
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (!terminado) {
+          tiempoRestante--;
+          actualizarReloj();
+          if (tiempoRestante <= 0) {
+            terminarExamen();
+          }
+        }
+      }, 1000);
+    }
+
+    function actualizarReloj() {
+      clock.textContent = formatTime(tiempoRestante);
+    }
+
+    // --- Mostrar pregunta ---
+    function mostrarPregunta() {
+      if (preguntaIdx >= preguntas.length) {
+        terminarExamen();
+        return;
+      }
+      const p = preguntas[preguntaIdx];
+      quizQuestion.textContent = (preguntaIdx + 1) + ". " + p.texto;
+      quizOptions.innerHTML = "";
+      p.opciones.forEach((op, i) => {
+        const btn = document.createElement("button");
+        btn.className = "quiz-option";
+        btn.textContent = op;
+        btn.onclick = () => {
+          if (terminado) return;
+          if (i === p.correcta) puntaje += 2;
+          preguntaIdx++;
+          progress.style.width = ((preguntaIdx / preguntas.length) * 100) + "%";
+          mostrarPregunta();
+        };
+        quizOptions.appendChild(btn);
+      });
+      progress.style.width = ((preguntaIdx / preguntas.length) * 100) + "%";
+    }
+
+    // --- Terminar examen ---
+    function terminarExamen() {
+      terminado = true;
+      quizBox.style.display = "none";
+      resultBox.style.display = "flex";
+      resultScore.textContent = puntaje;
+      resultScore.style.color = colorNota(puntaje);
+      resultMessage.textContent = mensajeNota(puntaje);
+      resultUser.textContent = nombreUsuario;
+      clearInterval(timerInterval);
+    }
+
+    // --- Prevenir minimizar/cerrar con teclas conocidas ---
+    window.addEventListener('keydown', function(e) {
+      // Bloquea ESC, F11, Ctrl, Alt, etc. (solo dentro de la pestaña)
+      if (["Escape", "F11", "F4", "Tab"].includes(e.key) || e.ctrlKey || e.altKey || e.metaKey) {
+        e.preventDefault();
+        return false;
+      }
+    }, true);
+
+    // --- Bloqueo de botón "Salir" ---
+    // window.close() no funcionará en navegadores modernos a menos que se haya abierto la ventana por JavaScript. 
+    // Así que también redirecciono a 'about:blank' para simular cierre.
+
+  </script>
+</body>
+</html>
